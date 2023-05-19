@@ -1,7 +1,6 @@
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -14,7 +13,7 @@ public class Main {
     public static final int SALARY = 4;
     public static final int DOB = 5;
     public static final LocalDate TODAY = LocalDate.now();
-    public static String[][] contacts = new String[1][6];
+    private static String[][] contacts = new String[100][6];
 
     public static void main(String[] args) {
         clearConsole();
@@ -45,22 +44,54 @@ public class Main {
         switch (option) {
             case 1:
                 sc.nextLine();
-
                 addContacts(sc);
                 break;
-//            case 2:
-//                updateContacts(sc);
-//                break;
-//            case 1: deleteContacts();break;
-//            case 1: searchContacts();break;
-//            case 1: listContacts();break;
+            case 2:
+                sc.nextLine();
+                updateContacts(sc);
+                break;
+//            case 1: deleteContacts(sc);break;
+//            case 1: searchContacts(sc);break;
+//            case 1: listContacts(sc);break;
             case 6:
                 System.exit(0);
             default:
                 homePage();
         }
+    }
+
+    public static void updateContacts(Scanner sc) {
+        System.out.println("***************");
+        System.out.println("Update Contacts");
+        System.out.println("*************\n");
+
+        String[] contact = getContact(sc); // get contact details as an array
 
 
+    }
+
+    private static void printContact(String[] arr) {
+        System.out.println();
+        String[] fieldNames = {"CONTACT ID\t", "NAME\t\t", "PHONE NUMBER\t", "COMPANY\t\t", "SALARY\t\t", "DOB\t\t"};
+
+        for (int i = 0; i < arr.length; i++) {
+            System.out.println(fieldNames[i] + ": " + arr[i]);
+        }
+    }
+
+    private static String[] getContact(Scanner sc) {
+        System.out.print("Enter phone number or name: ");
+        String data = sc.nextLine();
+
+        try {
+            if (data.charAt(0) == '0') {
+                return contacts[searchContacts(data, CONTACT_NUMBER)];
+            } else {
+                return contacts[searchContacts(data, CONTACT_NAME)];
+            }
+        } catch (Exception e) {
+            return null;// no contact in the array
+        }
     }
 
     public static void addContacts(Scanner sc) {
@@ -75,7 +106,8 @@ public class Main {
 
         //set contact number
         String number = setContactNumber(sc);
-        System.out.println(number);
+//        System.out.println(number);
+        //here repeat numbers
         if (number == null) {
             System.out.println("\n\tInvalid Number!");
             System.out.print("\nDo you want to add number again(Y/N) -> ");
@@ -87,7 +119,7 @@ public class Main {
                 // Clear the lines
                 System.out.print("\033[0J");
                 number = setContactNumber(sc);
-                System.out.println(number);//TODO: Remove this line
+//                System.out.println(number);//TODO: Remove this line
             } else if (option.equalsIgnoreCase("n")) {
                 clearConsole();
                 homePage();
@@ -106,6 +138,7 @@ public class Main {
         //set DOB
         sc.nextLine();
         String dob = setDOB(sc);
+        //check date
         if (dob == null) {
             System.out.println("\n\tInvalid Birthday!");
             System.out.print("\nDo you want to add birthday again(Y/N) -> ");
@@ -124,28 +157,23 @@ public class Main {
                 //TODO: Handel the else statement
             }
         }
-//        System.out.println(contactID);
-//        System.out.println(name);
-//        System.out.println(number);
-//        System.out.println(company);
-//        System.out.println(salary);
-//        System.out.println(dob);
+
         toContacts(contactID, name, number, company, salary, dob);
         //TODO:Remove this for loop
-        for (String[] contact:contacts){
-            System.out.println(Arrays.toString(contact));
-        }
+//        for (String[] contact : contacts) {
+//            System.out.println(Arrays.toString(contact));
+//        }
 
         System.out.print("\nDo you want to add a new contact again? (Y/N) ->");
-        String option=sc.nextLine();
+        String option = sc.nextLine();
 
-        if(option.equalsIgnoreCase("y")){
+        if (option.equalsIgnoreCase("y")) {
             clearConsole();
             addContacts(sc);
         } else if (option.equalsIgnoreCase("n")) {
             clearConsole();
             homePage();
-        }else {
+        } else {
             //TODO:handel the else statement
         }
     }
@@ -211,11 +239,11 @@ public class Main {
     private static String setContactNumber(Scanner sc) {
         System.out.print("PHONE NUMBER\t: ");
         String number = sc.nextLine();
+        //TODO: Remove this lines
+//        System.out.println(validateNumber(number));
+//        System.out.println(searchContacts(number));
 
-        System.out.println(validateNumber(number));
-        System.out.println(searchContacts(number));
-
-        if (validateNumber(number) && searchContacts(number)) {
+        if (validateNumber(number) && !searchContacts(number)) {
             return number;
         } else {
             return null;
@@ -233,11 +261,25 @@ public class Main {
                     return true; // if contact is present
                 }
             }
-        } catch (Exception e) {
-            System.out.println("In exception");//TODO: Remove this line
-            return true; // for exception
+        } catch (Exception ignore) {
+            // TODO: Remove this line
+//            System.out.println("In exception");
+            return false; // for exception
         }
         return false; // if contact is not present
+    }
+
+    private static int searchContacts(String data, int filed) {
+        try {
+            for (int i = 0; i < contacts.length; i++) {
+                if (contacts[i][filed].equals(data)) {
+                    return i;
+                }
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return -1;
     }
 
     private static String setContactName(Scanner sc) {
