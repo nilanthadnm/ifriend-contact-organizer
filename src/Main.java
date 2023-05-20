@@ -50,7 +50,10 @@ public class Main {
                 sc.nextLine();
                 updateContacts(sc);
                 break;
-//            case 1: deleteContacts(sc);break;
+            case 3:
+                sc.nextLine();
+                deleteContacts(sc);
+                break;
 //            case 1: searchContacts(sc);break;
 //            case 1: listContacts(sc);break;
             case 6:
@@ -60,14 +63,136 @@ public class Main {
         }
     }
 
+    public static void deleteContacts(Scanner sc) {
+        System.out.println("***************");
+        System.out.println("Delete Contacts");
+        System.out.println("*************\n");
+
+        //get contact details from the array and print it
+        String[] contact=getContact(sc);
+        printContact(contact);
+
+
+    }
+
     public static void updateContacts(Scanner sc) {
         System.out.println("***************");
         System.out.println("Update Contacts");
         System.out.println("*************\n");
 
         String[] contact = getContact(sc); // get contact details as an array
+        printContact(contact); //print contact details
+
+        System.out.print("\nWhat do you want to update -> ");
+        System.out.println("\n\t[01] NAME");
+        System.out.println("\t[02] PHONE NUMBER");
+        System.out.println("\t[03] COMPANY NAME");
+        System.out.println("\t[04] SALARY");
+        System.out.println("\t[05] GO BACK\n");
+
+        System.out.print("Enter option to continue -> ");
+        int option = sc.nextInt();
+        switch (option) {
+            case 1:
+                clearConsoleLines();
+                sc.nextLine();
+                updateName(sc, contact);
+                break;
+            case 2:
+                clearConsoleLines();
+                sc.nextLine();
+                updatePhoneNumber(sc, contact);
+                break;
+            case 3:
+                clearConsoleLines();
+                sc.nextLine();
+                updateCompanyName(sc, contact);
+                break;
+            case 4:
+                clearConsoleLines();
+                sc.nextLine();
+                UpdateSalary(sc, contact);
+                break;
+            case 5:
+                clearConsole();
+                homePage();
+        }
+
+    }
+
+    private static void UpdateSalary(Scanner sc, String[] contact) {
+        System.out.println("UPDATE SALARY\n=============");
+        System.out.print("\nEnter new ");
+        String salary = setSalary(sc); //new company name
+
+        //get contact index
+        int i = searchContacts(contact[CONTACT_NUMBER]);
+
+        //update contact details-company name
+        contacts[i][SALARY] = salary;
+
+        updateSuccess(sc);
+    }
+
+    private static void updateCompanyName(Scanner sc, String[] contact) {
+        System.out.println("UPDATE COMPANY NAME\n===================");
+        System.out.print("\nEnter new ");
+        String company = setCompanyName(sc); //new company name
+
+        //get contact index
+        int i = searchContacts(contact[CONTACT_NUMBER]);
+
+        //update contact details-company name
+        contacts[i][COMPANY_NAME] = company;
+
+        updateSuccess(sc);
+    }
+
+    private static void updatePhoneNumber(Scanner sc, String[] contact) {
+        System.out.println("UPDATE PHONE NUMBER\n===================");
+        System.out.print("\nEnter new ");
+        String number = setContactNumber(sc);
+
+        //get contact index
+        int i = searchContacts(contact[CONTACT_NUMBER]);
+
+        //update contact details-phone number
+        contacts[i][CONTACT_NUMBER] = number;
 
 
+        updateSuccess(sc);
+    }
+
+
+    private static void updateName(Scanner sc, String[] contact) {
+        System.out.println("UPDATE NAME\n===========");
+        System.out.print("\nEnter new ");
+        String name = setContactName(sc); //new name
+
+        //get contact index
+        int i = searchContacts(contact[CONTACT_NUMBER]); //don't get negative value because given contact already in the list
+
+        //update contact details
+        contacts[i][CONTACT_NAME] = name;
+
+        updateSuccess(sc);
+    }
+
+    private static void updateSuccess(Scanner sc) {
+        System.out.println("\n\tContact has been successfully updated!\n");
+
+        System.out.print("Do you want to update another contact (Y/N)-> ");
+        String option = sc.nextLine();
+
+        if (option.equalsIgnoreCase("y")) {
+            clearConsole();
+            updateContacts(sc);
+        } else if (option.equalsIgnoreCase("n")) {
+            clearConsole();
+            homePage();
+        } else {
+            //TODO:handel this with clearConsoleLines()
+        }
     }
 
     private static void printContact(String[] arr) {
@@ -75,7 +200,7 @@ public class Main {
         String[] fieldNames = {"CONTACT ID\t", "NAME\t\t", "PHONE NUMBER\t", "COMPANY\t\t", "SALARY\t\t", "DOB\t\t"};
 
         for (int i = 0; i < arr.length; i++) {
-            System.out.println(fieldNames[i] + ": " + arr[i]);
+            System.out.println("\t" + fieldNames[i] + ": " + arr[i]);
         }
     }
 
@@ -83,15 +208,32 @@ public class Main {
         System.out.print("Enter phone number or name: ");
         String data = sc.nextLine();
 
-        try {
-            if (data.charAt(0) == '0') {
-                return contacts[searchContacts(data, CONTACT_NUMBER)];
-            } else {
-                return contacts[searchContacts(data, CONTACT_NAME)];
-            }
-        } catch (Exception e) {
-            return null;// no contact in the array
+        String[] contact;
+        if (data.charAt(0) == '0') {
+            contact = searchContacts(data, CONTACT_NUMBER);
+        } else {
+            contact = searchContacts(data, CONTACT_NAME);
         }
+
+        if (contact == null) {
+            System.out.println("\n\tSearch failed!");
+            System.out.print("\nDo you want to search again? (Y/N): ");
+
+            String option = sc.nextLine();
+            if (option.equalsIgnoreCase("y")) {
+                // Move the cursor up five lines
+                System.out.print("\033[5A");
+                // Clear the lines
+                System.out.print("\033[0J");
+                contact = getContact(sc);
+            } else if (option.equalsIgnoreCase("n")) {
+                homePage();
+            } else {
+                System.out.print("Enter Correct option to continue -> ");
+                //TODO: Handel the else statement
+            }
+        }
+        return contact;
     }
 
     public static void addContacts(Scanner sc) {
@@ -106,8 +248,8 @@ public class Main {
 
         //set contact number
         String number = setContactNumber(sc);
-//        System.out.println(number);
-        //here repeat numbers
+
+        //check for repeat numbers
         if (number == null) {
             System.out.println("\n\tInvalid Number!");
             System.out.print("\nDo you want to add number again(Y/N) -> ");
@@ -119,7 +261,6 @@ public class Main {
                 // Clear the lines
                 System.out.print("\033[0J");
                 number = setContactNumber(sc);
-//                System.out.println(number);//TODO: Remove this line
             } else if (option.equalsIgnoreCase("n")) {
                 clearConsole();
                 homePage();
@@ -130,7 +271,7 @@ public class Main {
         }
 
         // set company
-        String company = setCompany(sc);
+        String company = setCompanyName(sc);
 
         //set salary
         String salary = setSalary(sc);
@@ -159,10 +300,6 @@ public class Main {
         }
 
         toContacts(contactID, name, number, company, salary, dob);
-        //TODO:Remove this for loop
-//        for (String[] contact : contacts) {
-//            System.out.println(Arrays.toString(contact));
-//        }
 
         System.out.print("\nDo you want to add a new contact again? (Y/N) ->");
         String option = sc.nextLine();
@@ -231,7 +368,7 @@ public class Main {
         //TODO:InputMismatchException
     }
 
-    private static String setCompany(Scanner sc) {
+    private static String setCompanyName(Scanner sc) {
         System.out.print("COMPANY\t\t: ");
         return sc.nextLine();
     }
@@ -239,11 +376,8 @@ public class Main {
     private static String setContactNumber(Scanner sc) {
         System.out.print("PHONE NUMBER\t: ");
         String number = sc.nextLine();
-        //TODO: Remove this lines
-//        System.out.println(validateNumber(number));
-//        System.out.println(searchContacts(number));
 
-        if (validateNumber(number) && !searchContacts(number)) {
+        if (validateNumber(number) && !isContact(number)) {
             return number;
         } else {
             return null;
@@ -254,7 +388,7 @@ public class Main {
         return number.length() == 5 && number.charAt(0) == '0';
     }
 
-    private static boolean searchContacts(String data) {
+    private static boolean isContact(String data) {
         try {
             for (String[] contact : contacts) {
                 if (contact[CONTACT_NUMBER].equals(data)) {
@@ -262,17 +396,15 @@ public class Main {
                 }
             }
         } catch (Exception ignore) {
-            // TODO: Remove this line
-//            System.out.println("In exception");
             return false; // for exception
         }
         return false; // if contact is not present
     }
 
-    private static int searchContacts(String data, int filed) {
+    private static int searchContacts(String data) {
         try {
             for (int i = 0; i < contacts.length; i++) {
-                if (contacts[i][filed].equals(data)) {
+                if (contacts[i][CONTACT_NUMBER].equals(data)) {
                     return i;
                 }
             }
@@ -280,6 +412,19 @@ public class Main {
             return -1;
         }
         return -1;
+    }
+
+    private static String[] searchContacts(String data, int filed) {
+        try {
+            for (String[] contact : contacts) {
+                if (contact[filed].equals(data)) {
+                    return contact;
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
     private static String setContactName(Scanner sc) {
@@ -293,6 +438,12 @@ public class Main {
         return str;
     }
 
+    public static void clearConsoleLines() {
+        // Move the cursor up five lines
+        System.out.print("\033[8A");
+        // Clear the lines
+        System.out.print("\033[0J");
+    }
 
     public final static void clearConsole() {
         try {
