@@ -1,6 +1,7 @@
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -13,7 +14,7 @@ public class Main {
     public static final int SALARY = 4;
     public static final int DOB = 5;
     public static final LocalDate TODAY = LocalDate.now();
-    private static String[][] contacts = new String[100][6];
+    private static String[][] contacts = new String[1][6];
 
     public static void main(String[] args) {
         clearConsole();
@@ -54,12 +55,146 @@ public class Main {
                 sc.nextLine();
                 deleteContacts(sc);
                 break;
-//            case 1: searchContacts(sc);break;
-//            case 1: listContacts(sc);break;
+            case 4:
+                sc.nextLine();
+                searchContacts(sc);
+                break;
+            case 5:
+                listContacts(sc);
+                break;
             case 6:
                 System.exit(0);
             default:
                 homePage();
+        }
+    }
+
+    public static void listContacts(Scanner sc) {
+        System.out.println("***************");
+        System.out.println("SORT Contacts");
+        System.out.println("*************\n");
+
+        System.out.println("\n\t[01] SORTED BY NAME");
+        System.out.println("\t[02] SORTED BY SALARY");
+        System.out.println("\t[03] SORTED BY DOB");
+
+        System.out.print("\nEnter option to continue ->");
+        int option = sc.nextInt();
+
+        switch (option) {
+            case 1:
+                clearConsole();
+                byName();
+                break;
+            case 2:
+                clearConsole();
+                bySalary();
+                break;
+//            case 3:clearConsole();byDOB();break;
+        }
+    }
+
+    private static void bySalary() {
+        System.out.println("**************");
+        System.out.println("Sorted by Salary");
+        System.out.println("**************");
+
+        String[][] temp = getSortedSalary();
+
+        for (String[] arr : temp) {
+            System.out.println(Arrays.toString(arr));
+        }
+    }
+
+    private static String[][] getSortedSalary() {
+        String[][] temp = getClone();
+
+        for (String[] arr : temp) {
+            System.out.println(Arrays.toString(arr));
+        }
+
+        double[] tempSalary = getSalary(temp);//get salary values in to double array
+
+        for (int i = 1; i < tempSalary.length; i++) {
+            for (int j = 0; j < i; j++) {
+                if (tempSalary[j] > tempSalary[i]) {
+                    double value = tempSalary[j];
+                    temp[j] = temp[i];
+                    tempSalary[j] = tempSalary[i];
+                    tempSalary[i] = value;
+                }
+            }
+        }
+        return temp;
+    }
+
+    private static double[] getSalary(String[][] temp) {
+        /*
+         * this method store  string value of salary
+         *  in a contact to double array
+         * */
+        double[] tempSalary = new double[temp.length];
+
+        for (int i = 0; i < temp.length; i++) {
+            tempSalary[i] = Double.parseDouble(temp[i][SALARY]);
+        }
+        return tempSalary;
+    }
+
+    private static void byName() {
+        System.out.println("**************");
+        System.out.println("Sorted by Name");
+        System.out.println("**************");
+
+        String[][] temp = getSortedName();
+        for (String[] arr : temp) {
+            System.out.println(Arrays.toString(arr));
+        }
+
+    }
+
+    private static String[][] getSortedName() {
+        String[][] temp = getClone();
+        for (int i = 0; i < temp.length; i++) {
+            for (int j = 0; j < temp.length - 1; j++) {
+                for (int k = j + 1; k < temp.length; k++) {
+                    if (temp[j][CONTACT_NAME].compareTo(temp[k][CONTACT_NAME]) > 0) {
+                        String[] contact = temp[j];
+                        temp[j] = temp[k];
+                        temp[k] = contact;
+                    }
+                }
+
+            }
+        }
+        return temp;
+    }
+
+    private static String[][] getClone() {
+        return contacts.clone();
+    }
+
+    public static void searchContacts(Scanner sc) {
+        System.out.println("***************");
+        System.out.println("Search Contacts");
+        System.out.println("*************\n");
+
+        //get contact details from the array and print it
+        String[] contact = getContact(sc);
+        printContact(contact);
+
+        //search success
+        System.out.print("Do you want to search another contact (Y/N)-> ");
+        String option = sc.nextLine();
+
+        if (option.equalsIgnoreCase("y")) {
+            clearConsole();
+            searchContacts(sc);
+        } else if (option.equalsIgnoreCase("n")) {
+            clearConsole();
+            homePage();
+        } else {
+            //TODO:handel this with clearConsoleLines()
         }
     }
 
@@ -69,10 +204,58 @@ public class Main {
         System.out.println("*************\n");
 
         //get contact details from the array and print it
-        String[] contact=getContact(sc);
+        String[] contact = getContact(sc);
         printContact(contact);
 
+        //get contact index
+        int i = search(contact[CONTACT_NUMBER]);
 
+        System.out.print("\nDo you want to delete this contact(Y/N) -> ");
+        String option = sc.nextLine();
+
+        if (option.equalsIgnoreCase("y")) {
+//            print();
+//            System.out.println(index);
+            removeContact(i);
+//            System.out.println(index);
+//            print();
+        } else if (option.equalsIgnoreCase("n")) {
+            clearConsole();
+            homePage();
+        } else {
+            //TODO: Handel else statement
+        }
+        deleteSuccess(sc);
+    }
+
+    private static void deleteSuccess(Scanner sc) {
+        System.out.println("\n\tContact successfully has been deleted! ");
+
+        System.out.print("Do you want to delete another contact (Y/N)-> ");
+        String option = sc.nextLine();
+
+        if (option.equalsIgnoreCase("y")) {
+            clearConsole();
+            deleteContacts(sc);
+        } else if (option.equalsIgnoreCase("n")) {
+            clearConsole();
+            homePage();
+        } else {
+            //TODO:handel this with clearConsoleLines()
+        }
+    }
+
+    private static void removeContact(int i) {
+        String[][] temp = new String[contacts.length - 1][6];
+
+        for (int j = i; j < contacts.length - 1; j++) {
+            contacts[i] = contacts[i + 1];
+        }
+        for (int j = 0; j < temp.length; j++) {
+            temp[j] = contacts[j];
+        }
+        index--;
+        contacts = temp;
     }
 
     public static void updateContacts(Scanner sc) {
@@ -126,7 +309,7 @@ public class Main {
         String salary = setSalary(sc); //new company name
 
         //get contact index
-        int i = searchContacts(contact[CONTACT_NUMBER]);
+        int i = search(contact[CONTACT_NUMBER]);
 
         //update contact details-company name
         contacts[i][SALARY] = salary;
@@ -140,7 +323,7 @@ public class Main {
         String company = setCompanyName(sc); //new company name
 
         //get contact index
-        int i = searchContacts(contact[CONTACT_NUMBER]);
+        int i = search(contact[CONTACT_NUMBER]);
 
         //update contact details-company name
         contacts[i][COMPANY_NAME] = company;
@@ -154,7 +337,7 @@ public class Main {
         String number = setContactNumber(sc);
 
         //get contact index
-        int i = searchContacts(contact[CONTACT_NUMBER]);
+        int i = search(contact[CONTACT_NUMBER]);
 
         //update contact details-phone number
         contacts[i][CONTACT_NUMBER] = number;
@@ -170,7 +353,7 @@ public class Main {
         String name = setContactName(sc); //new name
 
         //get contact index
-        int i = searchContacts(contact[CONTACT_NUMBER]); //don't get negative value because given contact already in the list
+        int i = search(contact[CONTACT_NUMBER]); //don't get negative value because given contact already in the list
 
         //update contact details
         contacts[i][CONTACT_NAME] = name;
@@ -210,9 +393,9 @@ public class Main {
 
         String[] contact;
         if (data.charAt(0) == '0') {
-            contact = searchContacts(data, CONTACT_NUMBER);
+            contact = search(data, CONTACT_NUMBER);
         } else {
-            contact = searchContacts(data, CONTACT_NAME);
+            contact = search(data, CONTACT_NAME);
         }
 
         if (contact == null) {
@@ -401,7 +584,7 @@ public class Main {
         return false; // if contact is not present
     }
 
-    private static int searchContacts(String data) {
+    private static int search(String data) {
         try {
             for (int i = 0; i < contacts.length; i++) {
                 if (contacts[i][CONTACT_NUMBER].equals(data)) {
@@ -414,7 +597,7 @@ public class Main {
         return -1;
     }
 
-    private static String[] searchContacts(String data, int filed) {
+    private static String[] search(String data, int filed) {
         try {
             for (String[] contact : contacts) {
                 if (contact[filed].equals(data)) {
@@ -458,6 +641,12 @@ public class Main {
         } catch (final Exception e) {
             e.printStackTrace();
             // Handle any exceptions.
+        }
+    }
+
+    public static void print() {
+        for (String[] arr : contacts) {
+            System.out.println(Arrays.toString(arr));
         }
     }
 }
