@@ -13,10 +13,11 @@ public class Main {
     public static final int COMPANY_NAME = 3;
     public static final int SALARY = 4;
     public static final int DOB = 5;
-    public static final LocalDate TODAY = LocalDate.now();
-    private static String[][] contacts = new String[1][6];
+    private static final LocalDate TODAY = LocalDate.now();
+    private static String[][] contacts = new String[1000][6];
 
     public static void main(String[] args) {
+
         clearConsole();
         homePage();
 
@@ -84,44 +85,42 @@ public class Main {
         switch (option) {
             case 1:
                 clearConsole();
-                byName();
+                byName(sc);
                 break;
             case 2:
                 clearConsole();
-                bySalary();
+                bySalary(sc);
                 break;
-//            case 3:clearConsole();byDOB();break;
+//            case 3:clearConsole();byDOB(sc);break;
         }
     }
 
-    private static void bySalary() {
+    private static void bySalary(Scanner sc) {
         System.out.println("**************");
         System.out.println("Sorted by Salary");
         System.out.println("**************");
 
         String[][] temp = getSortedSalary();
-
-        for (String[] arr : temp) {
-            System.out.println(Arrays.toString(arr));
-        }
+        print(temp);
+        listSuccess(sc);
     }
 
     private static String[][] getSortedSalary() {
         String[][] temp = getClone();
 
-        for (String[] arr : temp) {
-            System.out.println(Arrays.toString(arr));
-        }
-
         double[] tempSalary = getSalary(temp);//get salary values in to double array
 
-        for (int i = 1; i < tempSalary.length; i++) {
+        for (int i = 1; i < index; i++) {
             for (int j = 0; j < i; j++) {
                 if (tempSalary[j] > tempSalary[i]) {
                     double value = tempSalary[j];
-                    temp[j] = temp[i];
                     tempSalary[j] = tempSalary[i];
                     tempSalary[i] = value;
+
+                    //sorting contacts
+                    String[] contact = temp[j];
+                    temp[j] = temp[i];
+                    temp[i] = contact;
                 }
             }
         }
@@ -135,36 +134,49 @@ public class Main {
          * */
         double[] tempSalary = new double[temp.length];
 
-        for (int i = 0; i < temp.length; i++) {
+        for (int i = 0; i < index; i++) {
             tempSalary[i] = Double.parseDouble(temp[i][SALARY]);
         }
+        System.out.println(Arrays.toString(tempSalary));
         return tempSalary;
     }
 
-    private static void byName() {
+    private static void byName(Scanner sc) {
         System.out.println("**************");
         System.out.println("Sorted by Name");
         System.out.println("**************");
 
         String[][] temp = getSortedName();
-        for (String[] arr : temp) {
-            System.out.println(Arrays.toString(arr));
-        }
+        print(temp);
+        listSuccess(sc);
+    }
 
+    private static void listSuccess(Scanner sc) {
+        System.out.print("Do you want to go back (Y/N)-> ");
+        String option = sc.nextLine();
+
+        if (option.equalsIgnoreCase("y")) {
+            clearConsole();
+            listContacts(sc);
+        } else if (option.equalsIgnoreCase("n")) {
+            clearConsole();
+            homePage();
+        } else {
+            //TODO:handel this with clearConsoleEightLines()
+        }
     }
 
     private static String[][] getSortedName() {
         String[][] temp = getClone();
-        for (int i = 0; i < temp.length; i++) {
-            for (int j = 0; j < temp.length - 1; j++) {
-                for (int k = j + 1; k < temp.length; k++) {
+        for (int i = 0; i < index; i++) {
+            for (int j = 0; j < index - 1; j++) {
+                for (int k = j + 1; k < index; k++) {
                     if (temp[j][CONTACT_NAME].compareTo(temp[k][CONTACT_NAME]) > 0) {
                         String[] contact = temp[j];
                         temp[j] = temp[k];
                         temp[k] = contact;
                     }
                 }
-
             }
         }
         return temp;
@@ -194,7 +206,7 @@ public class Main {
             clearConsole();
             homePage();
         } else {
-            //TODO:handel this with clearConsoleLines()
+            System.out.println("\nIncorrect Input, Enter again!");
         }
     }
 
@@ -214,11 +226,7 @@ public class Main {
         String option = sc.nextLine();
 
         if (option.equalsIgnoreCase("y")) {
-//            print();
-//            System.out.println(index);
             removeContact(i);
-//            System.out.println(index);
-//            print();
         } else if (option.equalsIgnoreCase("n")) {
             clearConsole();
             homePage();
@@ -241,7 +249,7 @@ public class Main {
             clearConsole();
             homePage();
         } else {
-            //TODO:handel this with clearConsoleLines()
+            //TODO:handel this with clearConsoleEightLines()
         }
     }
 
@@ -255,6 +263,7 @@ public class Main {
             temp[j] = contacts[j];
         }
         index--;
+        idCount--;
         contacts = temp;
     }
 
@@ -277,22 +286,22 @@ public class Main {
         int option = sc.nextInt();
         switch (option) {
             case 1:
-                clearConsoleLines();
+                clearConsoleEightLines();
                 sc.nextLine();
                 updateName(sc, contact);
                 break;
             case 2:
-                clearConsoleLines();
+                clearConsoleEightLines();
                 sc.nextLine();
                 updatePhoneNumber(sc, contact);
                 break;
             case 3:
-                clearConsoleLines();
+                clearConsoleEightLines();
                 sc.nextLine();
                 updateCompanyName(sc, contact);
                 break;
             case 4:
-                clearConsoleLines();
+                clearConsoleEightLines();
                 sc.nextLine();
                 UpdateSalary(sc, contact);
                 break;
@@ -374,7 +383,7 @@ public class Main {
             clearConsole();
             homePage();
         } else {
-            //TODO:handel this with clearConsoleLines()
+            //TODO:handel this with clearConsoleEightLines()
         }
     }
 
@@ -404,10 +413,7 @@ public class Main {
 
             String option = sc.nextLine();
             if (option.equalsIgnoreCase("y")) {
-                // Move the cursor up five lines
-                System.out.print("\033[5A");
-                // Clear the lines
-                System.out.print("\033[0J");
+                clearConsoleFiveLines();
                 contact = getContact(sc);
             } else if (option.equalsIgnoreCase("n")) {
                 homePage();
@@ -439,10 +445,7 @@ public class Main {
 
             String option = sc.nextLine();
             if (option.equalsIgnoreCase("y")) {
-                // Move the cursor up five lines
-                System.out.print("\033[5A");
-                // Clear the lines
-                System.out.print("\033[0J");
+                clearConsoleFiveLines();
                 number = setContactNumber(sc);
             } else if (option.equalsIgnoreCase("n")) {
                 clearConsole();
@@ -469,10 +472,7 @@ public class Main {
 
             String option = sc.nextLine();
             if (option.equalsIgnoreCase("y")) {
-                // Move the cursor up five lines
-                System.out.print("\033[5A");
-                // Clear the lines
-                System.out.print("\033[0J");
+                clearConsoleFiveLines();
                 dob = setDOB(sc);
             } else if (option.equalsIgnoreCase("n")) {
                 homePage();
@@ -513,7 +513,7 @@ public class Main {
     }
 
     private static void extendContacts() {
-        String[][] temp = new String[index + 1][6];
+        String[][] temp = new String[index + 500][6];
         for (int i = 0; i < contacts.length; i++) {
             for (int j = 0; j < contacts[i].length; j++) {
                 temp[i][j] = contacts[i][j];
@@ -568,25 +568,25 @@ public class Main {
     }
 
     private static boolean validateNumber(String number) {
-        return number.length() == 5 && number.charAt(0) == '0';
+        return number.length() == 10 && number.charAt(0) == '0';
     }
 
     private static boolean isContact(String data) {
         try {
-            for (String[] contact : contacts) {
-                if (contact[CONTACT_NUMBER].equals(data)) {
-                    return true; // if contact is present
+            for (int i = 0; i <= index; i++) {
+                if (contacts[i][CONTACT_NUMBER].equals(data)) {
+                    return true;
                 }
             }
-        } catch (Exception ignore) {
-            return false; // for exception
+        } catch (Exception e) {
+            return false;
         }
-        return false; // if contact is not present
+        return false;
     }
 
     private static int search(String data) {
         try {
-            for (int i = 0; i < contacts.length; i++) {
+            for (int i = 0; i <= index; i++) {
                 if (contacts[i][CONTACT_NUMBER].equals(data)) {
                     return i;
                 }
@@ -599,9 +599,9 @@ public class Main {
 
     private static String[] search(String data, int filed) {
         try {
-            for (String[] contact : contacts) {
-                if (contact[filed].equals(data)) {
-                    return contact;
+            for (int i = 0; i <= index; i++) {
+                if (contacts[i][filed].equals(data)) {
+                    return contacts[i];
                 }
             }
         } catch (Exception e) {
@@ -621,11 +621,14 @@ public class Main {
         return str;
     }
 
-    public static void clearConsoleLines() {
-        // Move the cursor up five lines
-        System.out.print("\033[8A");
-        // Clear the lines
-        System.out.print("\033[0J");
+    public static void clearConsoleEightLines() {
+        System.out.print("\033[8A"); // Move the cursor up eight lines
+        System.out.print("\033[0J");       // Clear the lines
+    }
+
+    public static void clearConsoleFiveLines() {
+        System.out.print("\033[5A");    // Move the cursor up five lines
+        System.out.print("\033[0J");       // Clear the lines
     }
 
     public final static void clearConsole() {
@@ -644,9 +647,9 @@ public class Main {
         }
     }
 
-    public static void print() {
-        for (String[] arr : contacts) {
-            System.out.println(Arrays.toString(arr));
+    public static void print(String[][] arr) {
+        for (int i = 0; i < index; i++) {
+            System.out.println(Arrays.toString(arr[i]));
         }
     }
 }
